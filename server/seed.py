@@ -7,7 +7,9 @@ from random import randint, choice as rc
 from faker import Faker
 
 # Local imports
-from config import app, db
+from app_config import app, db
+from models.reading import Reading
+from models.tarotcard import TarotCard
 from models.user import User
 
 if __name__ == "__main__":
@@ -16,8 +18,9 @@ if __name__ == "__main__":
         print("Starting seed...")
         # Seed code goes here!
 
-        db.drop_all()
-        db.create_all()
+        Reading.query.delete()
+        User.query.delete()
+        TarotCard.query.delete()
         # Create a list to collect users that we want to add
         users_to_add = []
         # Generate fake data for users

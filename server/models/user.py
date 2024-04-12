@@ -1,5 +1,6 @@
 # from sqlalchemy.ext.associationproxy import association_proxy
-from config import SerializerMixin, db, flask_bcrypt
+from . import SerializerMixin, db, validates
+from app_config import flask_bcrypt
 from sqlalchemy.ext.hybrid import hybrid_property
 
 
