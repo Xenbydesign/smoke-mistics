@@ -7,9 +7,9 @@ class Reading(db.Model, SerializerMixin):
     __tablename__ = "readings"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    tarot_one_id = db.Column(db.Integer, db.ForeignKey("tarot_cards.id"))
-    tarot_two_id = db.Column(db.Integer, db.ForeignKey("tarot_cards.id"))
-    tarot_three_id = db.Column(db.Integer, db.ForeignKey("tarot_cards.id"))
+    tarot1_id = db.Column(db.Integer, db.ForeignKey("tarot_cards.id"))
+    tarot2_id = db.Column(db.Integer, db.ForeignKey("tarot_cards.id"))
+    tarot3_id = db.Column(db.Integer, db.ForeignKey("tarot_cards.id"))
     interpretation = db.Column(db.String)
     comment = db.Column(db.String)
     is_public = db.Column(db.Boolean, default=False)
