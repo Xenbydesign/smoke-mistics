@@ -1,4 +1,5 @@
 from . import SerializerMixin, db, validates
+from sqlalchemy.sql.expression import func
 from .user import User
 from .tarotcard import TarotCard
 
