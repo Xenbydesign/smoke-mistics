@@ -40,6 +40,15 @@ def not_found(error):
 #     return decorated_function
 
 
+class Reading(Resource):
+    def get(self):
+        try:
+            readings = readings_schema.dump(Reading.query)
+            return readings, 200
+        except Exception as e:
+            return str(e), 400
+
+
 class Signup(Resource):
     def post(self):
         try:
