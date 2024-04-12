@@ -9,7 +9,7 @@ class TarotCard(db.Model, SerializerMixin):
 
     readings = db.relationship(
         "Reading",
-        back_populates="tarot_card",
+        primaryjoin="or_(Reading.tarot_one_id==TarotCard.id, Reading.tarot_two_id==TarotCard.id, Reading.tarot_three_id==TarotCard.id)",
     )
 
     def __repr__(self):
