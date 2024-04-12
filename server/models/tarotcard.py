@@ -1,11 +1,11 @@
-from config import SerializerMixin, db
+from . import SerializerMixin, db
 
 
 class TarotCard(db.Model, SerializerMixin):
     __tablename__ = "tarot_cards"
     id = db.Column(db.Integer, primary_key=True)
     card_name = db.Column(db.String)
-    image = db.Column(db.string)
+    image = db.Column(db.String)
 
     readings = db.relationship(
         "Reading",
