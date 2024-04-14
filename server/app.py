@@ -2,12 +2,13 @@
 
 # Standard library imports
 from sqlalchemy.sql.expression import func
+
 # Remote library imports
 from flask import request, g, render_template, make_response, session
 from flask_restful import Resource
 
 import random
-=======
+
 from werkzeug.exceptions import NotFound
 from functools import wraps
 
@@ -19,6 +20,8 @@ from app_config import app, db, api
 from models.reading import Reading
 from models.user import User
 from models.tarotcard import TarotCard
+from schemas.user_schema import user_schema, users_schema
+from schemas.reading_schema import reading_schema, readings_schema
 
 # Views go here!
 
@@ -27,11 +30,12 @@ from models.tarotcard import TarotCard
 def index():
     return "<h1>Project Server</h1>"
 
+
 class CreateReading(Resource):
     def post(self):
-        user_id = request.json.get('user_id')
+        user_id = request.json.get("user_id")
         tarot_cards = TarotCard.query.order_by(db.func.random()).limit(3).all()
-        # all_tarots = TarotCard.query.all() 
+        # all_tarots = TarotCard.query.all()
         # tarots_selected = random.choice(all_tarots, 3)
         if len(tarot_cards) < 3:
             return {"error": "Not enough cards available."}, 400
@@ -39,13 +43,16 @@ class CreateReading(Resource):
             user_id=user_id,
             tarot_one_id=tarot_cards[0].id,
             tarot_two_id=tarot_cards[1].id,
-            tarot_three_id=tarot_cards[2].id
+            tarot_three_id=tarot_cards[2].id,
         )
         db.session.add(new_reading)
         db.session.commit()
 
         return new_reading.to_dict(), 200
-api.add_resource(CreateReading, '/new-reading')
+
+
+api.add_resource(CreateReading, "/new-reading")
+
 
 @app.errorhandler(NotFound)
 def not_found(error):
@@ -53,23 +60,49 @@ def not_found(error):
 
 
 @app.before_request
+def before_request():
+    path_dict = {"userbyid": User}
+    if request.endpoint in path_dict:
+        id = request.view_args.get("id")
+        record = db.session.get(path_dict.get(request.endpoint), id)
+        key_name = "user"
+        setattr(g, key_name, record)
+
+
 # def login_required(func):
 #     @wraps(func)
 #     def decorated_function(*args, **kwargs):
 #         if "user_id" not in session:
-#             return {"message": "Access Denied, please log in!"}, 422
+#             return {"error": "Access Denied, please log in!"}, 422
 #         return func(*args, **kwargs)
 
 #     return decorated_function
 
 
-class Reading(Resource):
-    def get(self):
-        try:
-            readings = readings_schema.dump(Reading.query)
-            return readings, 200
-        except Exception as e:
-            return str(e), 400
+class UserById(Resource):
+    def get(self, id):
+        if g.user:
+            return user_schema.dump(g.user), 200
+        return {"error": "Could not find Profile"}, 404
+
+    def patch(self, id):
+        if g.user:
+            try:
+                data = request.json
+                update_user = user_schema.load(data, instance=g.user, partial=True)
+                db.session.commit()
+                return user_schema.dump(update_user), 202
+            except Exception as e:
+                db.session.rollback()
+                return {"error": str(e)}, 422
+        return {"error": "Could not locate profile."}, 404
+
+    def delete(self, id):
+        if g.user:
+            db.session.delete(g.user)
+            db.session.commit()
+            return "", 204
+        return {"error": "Could not find Profile"}, 404
 
 
 class Signup(Resource):
@@ -121,6 +154,9 @@ class Logout(Resource):
         return {}, 204
 
 
+api.add_resource(
+    UserById, "/users/<int:id>"
+)  # need to ask matteo about how to not use id so that others cant populate another users page with id.  making sure this works for now.
 api.add_resource(Signup, "/signup", endpoint="signup")
 api.add_resource(CheckSession, "/check_session", endpoint="check_session")
 api.add_resource(Login, "/login", endpoint="login")

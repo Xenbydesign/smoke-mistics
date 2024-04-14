@@ -8,8 +8,9 @@ from faker import Faker
 
 # Local imports
 from app_config import app, db
-from models.reading import Reading
-from models.tarotcard import TarotCard
+
+# from models.reading import Reading
+# from models.tarotcard import TarotCard
 from models.user import User
 
 if __name__ == "__main__":
@@ -18,15 +19,16 @@ if __name__ == "__main__":
         print("Starting seed...")
         # Seed code goes here!
 
-        Reading.query.delete()
+        # Reading.query.delete()
         User.query.delete()
-        TarotCard.query.delete()
+        # TarotCard.query.delete()
         # Create a list to collect users that we want to add
         users_to_add = []
         # Generate fake data for users
         for _ in range(4):  # Adjust the number of users as needed
             username = fake.user_name()
             email = fake.email()
+            birthday = fake.date_of_birth(minimum_age=18, maximum_age=65)
             profile_image = fake.image_url()
             about_me = fake.text(max_nb_chars=200)  # Generate random text for about me
             password = fake.password()
@@ -35,6 +37,7 @@ if __name__ == "__main__":
             new_user = User(
                 username=username,
                 email=email,
+                birthday=birthday,
                 profile_image=profile_image,
                 about_me=about_me,
             )
