@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
+
 # Standard library imports
 from sqlalchemy.sql.expression import func
 
 # Remote library imports
+import os
 from flask import request, g, render_template, make_response, session
 from flask_restful import Resource
 
@@ -32,26 +34,59 @@ def index():
 
 
 class CreateReading(Resource):
-    def post(self):
-        user_id = request.json.get("user_id")
-        tarot_cards = TarotCard.query.order_by(db.func.random()).limit(3).all()
-        # all_tarots = TarotCard.query.all()
-        # tarots_selected = random.choice(all_tarots, 3)
+
+    def get(self):
+        user_id = request.json.get('user_id')     
+        # tarot_cards = TarotCard.query.order_by(db.func.random()).limit(3).all()
+        all_tarots = TarotCard.query.all() 
+        tarots_selected = random.choice(all_tarots, 3)
+
         if len(tarot_cards) < 3:
             return {"error": "Not enough cards available."}, 400
+
         new_reading = Reading(
             user_id=user_id,
             tarot_one_id=tarot_cards[0].id,
             tarot_two_id=tarot_cards[1].id,
-            tarot_three_id=tarot_cards[2].id,
+            tarot_three_id=tarot_card[2].id
         )
         db.session.add(new_reading)
         db.session.commit()
 
+
+        prompt = "What does it mean if someone draws these tarot cards in this order: " + ", ".join([card.name for card in tarot_cards]) + "?"
+
+        api_key = os.getenv('OPENAI_API_KEY')
+        if not api_key:
+            return {"error": "API key not configured."}, 500
+
+        interpretation = query_gpt(prompt, api_key)
+
+        response_data = {
+            "cards": [{"name": card.name, "image_url": card.image_url, "description": card.description} for card in tarot_cards],
+            "interpretation": interpretation
+        }
+
+        return response_data, 200
+    
+
+
+    def query_gpt(prompt, api_key):
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+        data = {
+            "prompt": prompt,
+            "max_tokens": 150
+        }
+        response = request.post("https://api.openai.com/v1/engines/davinci/completions", headers=headers, json=data)
+        if response.status_code == 200:
+            return response.json()['choices'][0]['text']
+        else:
+            return "Error in generating interpretation"
+
         return new_reading.to_dict(), 200
-
-
-api.add_resource(CreateReading, "/new-reading")
 
 
 @app.errorhandler(NotFound)
@@ -161,7 +196,7 @@ api.add_resource(Signup, "/signup", endpoint="signup")
 api.add_resource(CheckSession, "/check_session", endpoint="check_session")
 api.add_resource(Login, "/login", endpoint="login")
 api.add_resource(Logout, "/logout", endpoint="logout")
-
+api.add_resource(CreateReading, '/new-reading')
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)

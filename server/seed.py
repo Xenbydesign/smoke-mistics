@@ -1,18 +1,35 @@
 #!/usr/bin/env python3
 
 # Standard library imports
-from random import randint, choice as rc
-
-# Remote library imports
+import csv
 from faker import Faker
 
 # Local imports
 from app_config import app, db
 
 # from models.reading import Reading
-# from models.tarotcard import TarotCard
+from models.tarotcard import TarotCard
 from models.user import User
 
+def seed_tarot_cards():
+    """Reads tarot card data from a CSV file and seeds the database."""
+    try:
+        with open('tarot_cards.csv', mode='r', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+            cards_to_add = []
+            for row in reader:
+                new_card = TarotCard(
+                    name=row.get('name'),  
+                    image_url=row.get('image_url'),  
+                    description=row.get('description') 
+                )
+                if new_card.name and new_card.image_url: 
+                    cards_to_add.append(new_card)
+            db.session.add_all(cards_to_add)
+            db.session.commit()
+    except Exception as e:
+        print(f"Error seeding tarot cards: {e}")
+  
 if __name__ == "__main__":
     fake = Faker()
     with app.app_context():
@@ -21,7 +38,7 @@ if __name__ == "__main__":
 
         # Reading.query.delete()
         User.query.delete()
-        # TarotCard.query.delete()
+        TarotCard.query.delete()
         # Create a list to collect users that we want to add
         users_to_add = []
         # Generate fake data for users

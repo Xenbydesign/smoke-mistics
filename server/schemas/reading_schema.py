@@ -1,3 +1,4 @@
+
 from . import Reading, fields, ma, validate
 
 
@@ -26,7 +27,6 @@ class ReadingSchema(ma.SQLAlchemyAutoSchema):
             "invalid": "is_public must be a boolean value (True or False)."
         },
     )
-
 
 reading_schema = ReadingSchema()
 readings_schema = ReadingSchema(many=True)
