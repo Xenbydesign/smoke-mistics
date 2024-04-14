@@ -15,5 +15,5 @@ class TarotCard(db.Model, SerializerMixin):
     def __repr__(self):
         return f"""
         <TarotCard #{self.id}:
-        name:{self.card}
+        card:{self.card}
         />"""
