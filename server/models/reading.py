@@ -7,19 +7,19 @@ class Reading(db.Model, SerializerMixin):
     __tablename__ = "readings"
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    tarot1 = db.Column(db.Integer, db.ForeignKey("tarot_cards.id"))
-    tarot2 = db.Column(db.Integer, db.ForeignKey("tarot_cards.id"))
-    tarot3 = db.Column(db.Integer, db.ForeignKey("tarot_cards.id"))
+    tarot1_id = db.Column(db.Integer, db.ForeignKey("tarot_cards.id"))
+    tarot2_id = db.Column(db.Integer, db.ForeignKey("tarot_cards.id"))
+    tarot3_id = db.Column(db.Integer, db.ForeignKey("tarot_cards.id"))
     interpretation = db.Column(db.String)
     comment = db.Column(db.String)
     is_public = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
-    tarot_1 = db.relationship("TarotCard", foreign_keys="[Reading.tarot1]")
-    tarot_2 = db.relationship("TarotCard", foreign_keys="[Reading.tarot2]")
+    tarot_1 = db.relationship("TarotCard", foreign_keys="[Reading.tarot1_id]")
+    tarot_2 = db.relationship("TarotCard", foreign_keys="[Reading.tarot2_id]")
     tarot_3 = db.relationship(
         "TarotCard",
-        foreign_keys="[Reading.tarot3]",
+        foreign_keys="[Reading.tarot3_id]",
     )
 
     @property
