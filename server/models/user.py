@@ -18,10 +18,10 @@ class User(db.Model, SerializerMixin):
 
     serialize_rules = ("-_password_hash",)
 
-    readings = db.relationship(
-        "Reading",
-        back_populates="user",
-    )
+    # readings = db.relationship(
+    #     "Reading",
+    #     back_populates="user",
+    # )
 
     @hybrid_property
     def password_hash(self):
