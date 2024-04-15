@@ -34,9 +34,8 @@ def index():
 
 
 class CreateReading(Resource):
-
-    def get(self):
-        user_id = request.json.get("user_id")
+    def post(self):
+        user_id = session.get("user_id")
         # tarot_cards = TarotCard.query.order_by(db.func.random()).limit(3).all()
         all_tarots = TarotCard.query.all()
         tarots_selected = random.choice(all_tarots, 3)
@@ -44,40 +43,41 @@ class CreateReading(Resource):
         if len(tarots_selected) < 3:
             return {"error": "Not enough cards available."}, 400
 
-        new_reading = Reading(
-            user_id=user_id,
-            tarot1_id=tarot_cards[0].id,
-            tarot2_id=tarot_cards[1].id,
-            tarot3_id=tarot_card[2].id,
-        )
-        db.session.add(new_reading)
-        db.session.commit()
 
         prompt = (
             "What does it mean if someone draws these tarot cards in this order: "
-            + ", ".join([card.name for card in tarot_cards])
+            + ", ".join([card.name for card in tarots_selected])
             + "?"
         )
 
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
-            return {"error": "API key not configured."}, 500
+            return {"error": "API key not configured."}, 422
 
         interpretation = query_gpt(prompt, api_key)
 
-        response_data = {
-            "cards": [
-                {
-                    "name": card.name,
-                    "image_url": card.image_url,
-                    "description": card.description,
-                }
-                for card in tarot_cards
-            ],
-            "interpretation": interpretation,
-        }
+        new_reading = Reading(
+            user_id=user_id,
+            tarot1_id=tarots_selected[0].id,
+            tarot2_id=tarots_selected[1].id,
+            tarot3_id=tarots_selected[2].id,
+            interpretation = interpretation
+        )
+        db.session.add(new_reading)
+        db.session.commit()
+        # response_data = {
+        #     "cards": [
+        #         {
+        #             "name": card.name,
+        #             "image_url": card.image_url,
+        #             "description": card.description,
+        #         }
+        #         for card in tarot_cards
+        #     ],
+        #     "interpretation": interpretation,
+        # }
 
-        return response_data, 200
+        return 
 
     def query_gpt(prompt, api_key):
         headers = {
