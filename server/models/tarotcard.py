@@ -1,5 +1,7 @@
 from . import SerializerMixin, db
+
 from .reading import Reading
+
 
 class TarotCard(db.Model, SerializerMixin):
     __tablename__ = "tarot_cards"
@@ -7,7 +9,6 @@ class TarotCard(db.Model, SerializerMixin):
     name = db.Column(db.String)
     image_url = db.Column(db.String)
     alt = db.Column(db.String)
-
 
     readings = db.relationship(
         "Reading",

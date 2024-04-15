@@ -1,5 +1,4 @@
-
-from . import Reading, fields, ma, validate
+from . import Reading, fields, ma, validate, validates, ValidationError, User
 
 
 class ReadingSchema(ma.SQLAlchemyAutoSchema):
@@ -8,18 +7,26 @@ class ReadingSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         ordered = True
 
+    user_id = fields.Integer(required=True)
     # tarotcards = fields.Nested(
     #     "TarotCardSchema",
-    #     only=("id", "name", "image",),
-    #     exclude=("reading",),
+    #     only=(
+    #         "id",
+    #         "Name",
+    #         "Image_URL",
+    #         "alt",
+    #     ),
     #     many=True,
-    # ) might need to make this user not card??
+    # )
+    tarot1_id = fields.Int(load_only=True)
+    tarot2_id = fields.Int(load_only=True)
+    tarot3_id = fields.Int(load_only=True)
+
     interpretation = fields.String(
         required=True, validate=validate.Length(min=30, max=500)
     )
     comment = fields.String(required=False, validate=validate.Length(min=2, max=50))
-
-    is_public = is_public = fields.Boolean(
+    is_public = fields.Boolean(
         required=True,
         truthy={True},
         falsy={False},
@@ -27,6 +34,12 @@ class ReadingSchema(ma.SQLAlchemyAutoSchema):
             "invalid": "is_public must be a boolean value (True or False)."
         },
     )
+
+    @validates("user_id")
+    def validate_user_id(self, value):
+        if not User.query.get(value):
+            raise ValidationError("User ID does not exist.")
+
 
 reading_schema = ReadingSchema()
 readings_schema = ReadingSchema(many=True)

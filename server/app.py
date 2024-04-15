@@ -33,38 +33,63 @@ def index():
     return "<h1>Project Server</h1>"
 
 
+@app.errorhandler(NotFound)
+def not_found(error):
+    return {"error": error.description}, 404
+
+
+@app.before_request
+def before_request():
+    path_dict = {"userbyid": User, "readingbyid": Reading}
+    if request.endpoint in path_dict:
+        id = request.view_args.get("id")
+        record = db.session.get(path_dict.get(request.endpoint), id)
+        key_name = "user" if request.endpoint == "userbyid" else "reading"
+        setattr(g, key_name, record)
+
+
+# def login_required(func):
+#     @wraps(func)
+#     def decorated_function(*args, **kwargs):
+#         if "user_id" not in session:
+#             return {"error": "Access Denied, please log in!"}, 422
+#         return func(*args, **kwargs)
+
+#     return decorated_function
+
+
 class CreateReading(Resource):
-    def post(self):
-        user_id = session.get("user_id")
-        # tarot_cards = TarotCard.query.order_by(db.func.random()).limit(3).all()
-        all_tarots = TarotCard.query.all()
-        tarots_selected = random.choice(all_tarots, 3)
+    def post(self, id):
+        if g.user:
+            # tarot_cards = TarotCard.query.order_by(db.func.random()).limit(3).all()
+            all_tarots = TarotCard.query.all()
+            tarots_selected = random.choice(all_tarots, 3)
 
-        if len(tarots_selected) < 3:
-            return {"error": "Not enough cards available."}, 400
+            if len(tarots_selected) < 3:
+                return {"error": "Not enough cards available."}, 400
 
+            prompt = (
+                "What does it mean if someone draws these tarot cards in this order: "
+                + ", ".join([card.name for card in tarots_selected])
+                + "?"
+            )
 
-        prompt = (
-            "What does it mean if someone draws these tarot cards in this order: "
-            + ", ".join([card.name for card in tarots_selected])
-            + "?"
-        )
+            api_key = os.getenv("OPENAI_API_KEY")
+            if not api_key:
+                return {"error": "API key not configured."}, 422
 
-        api_key = os.getenv("OPENAI_API_KEY")
-        if not api_key:
-            return {"error": "API key not configured."}, 422
+            interpretation = query_gpt(prompt, api_key)
 
-        interpretation = query_gpt(prompt, api_key)
-
-        new_reading = Reading(
-            user_id=user_id,
-            tarot1_id=tarots_selected[0].id,
-            tarot2_id=tarots_selected[1].id,
-            tarot3_id=tarots_selected[2].id,
-            interpretation = interpretation
-        )
-        db.session.add(new_reading)
-        db.session.commit()
+            new_reading = Reading(
+                user_id=user_id,
+                tarot1_id=tarots_selected[0].id,
+                tarot2_id=tarots_selected[1].id,
+                tarot3_id=tarots_selected[2].id,
+                interpretation=interpretation,
+            )
+            db.session.add(new_reading)
+            db.session.commit()
+        return {"error": "unable to create Reading, please login."}, 404
         # response_data = {
         #     "cards": [
         #         {
@@ -77,9 +102,7 @@ class CreateReading(Resource):
         #     "interpretation": interpretation,
         # }
 
-        return 
-
-    def query_gpt(prompt, api_key):
+    def query_gpt(self, prompt, api_key):
         headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
@@ -98,29 +121,20 @@ class CreateReading(Resource):
         return new_reading.to_dict(), 200
 
 
-@app.errorhandler(NotFound)
-def not_found(error):
-    return {"error": error.description}, 404
+class Readings(Resource):
+    def get(self):
+        try:
+            readings = readings_schema.dump(Reading.query)
+            return readings, 200
+        except Exception as e:
+            return str(e), 400
 
 
-@app.before_request
-def before_request():
-    path_dict = {"userbyid": User}
-    if request.endpoint in path_dict:
-        id = request.view_args.get("id")
-        record = db.session.get(path_dict.get(request.endpoint), id)
-        key_name = "user"
-        setattr(g, key_name, record)
-
-
-# def login_required(func):
-#     @wraps(func)
-#     def decorated_function(*args, **kwargs):
-#         if "user_id" not in session:
-#             return {"error": "Access Denied, please log in!"}, 422
-#         return func(*args, **kwargs)
-
-#     return decorated_function
+class ReadingById(Resource):
+    def get(self, id):
+        if g.reading:
+            return reading_schema.dump(g.reading), 200
+        return {"message": f"Could not find reading with id #{id}"}, 404
 
 
 class UserById(Resource):
@@ -198,6 +212,8 @@ class Logout(Resource):
         return {}, 204
 
 
+api.add_resource(Readings, "/readings")
+api.add_resource(ReadingById, "/readings/<int:id>")
 api.add_resource(
     UserById, "/users/<int:id>"
 )  # need to ask matteo about how to not use id so that others cant populate another users page with id.  making sure this works for now.

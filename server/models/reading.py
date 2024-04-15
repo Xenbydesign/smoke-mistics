@@ -1,5 +1,7 @@
-from . import SerializerMixin, db, validates
+from . import SerializerMixin, db
+
 from .user import User
+
 # from .tarotcard import TarotCard
 
 
@@ -29,6 +31,13 @@ class Reading(db.Model, SerializerMixin):
     user = db.relationship(
         "User",
         back_populates="readings",
+    )
+
+    serialize_rules = (
+        "-user.readings",
+        "-tarot_1.readings",
+        "-tarot_2.readings",
+        "-tarot_3.readings",
     )
 
     def __repr__(self):
