@@ -13,6 +13,7 @@ class TarotCard(db.Model, SerializerMixin):
     readings = db.relationship(
         "Reading",
         primaryjoin="or_(Reading.tarot1_id==TarotCard.id, Reading.tarot2_id==TarotCard.id, Reading.tarot3_id==TarotCard.id)",
+        overlaps="tarot_1,tarot_2,tarot_3",
     )
 
     def __repr__(self):
