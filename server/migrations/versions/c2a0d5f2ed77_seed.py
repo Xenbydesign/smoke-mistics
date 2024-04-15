@@ -1,8 +1,8 @@
-"""tables
+"""seed
 
-Revision ID: f980ddb800a0
+Revision ID: c2a0d5f2ed77
 Revises: 
-Create Date: 2024-04-14 00:25:19.795234
+Create Date: 2024-04-15 09:36:04.727328
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f980ddb800a0'
+revision = 'c2a0d5f2ed77'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,7 +21,7 @@ def upgrade():
     op.create_table('tarot_cards',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=True),
-    sa.Column('image', sa.String(), nullable=True),
+    sa.Column('image_url', sa.String(), nullable=True),
     sa.Column('alt', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )

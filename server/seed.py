@@ -19,10 +19,11 @@ def seed_tarot_cards(csv_file):
             cards_to_add = []
             for row in reader:
                 new_card = TarotCard(
-                    name=row.get("name"),
-                    image_url=row.get("image_url"),
+                    name=row.get("Name"),
+                    image_url=row.get("Image_url"),
                     alt=row.get("alt"),
                 )
+                
                 if new_card.name and new_card.image_url:
                     cards_to_add.append(new_card)
             if cards_to_add:

@@ -1,6 +1,6 @@
 from . import SerializerMixin, db, validates
 from .user import User
-from .tarotcard import TarotCard
+# from .tarotcard import TarotCard
 
 
 class Reading(db.Model, SerializerMixin):
