@@ -38,11 +38,11 @@ def not_found(error):
 
 @app.before_request
 def before_request():
-    path_dict = {"userbyid": User, "createreading":Reading}
+    path_dict = {"userbyid": User, "readingbyid": Reading}
     if request.endpoint in path_dict:
         id = request.view_args.get("id")
         record = db.session.get(path_dict.get(request.endpoint), id)
-        key_name = "user"
+        key_name = "user" if request.endpoint == "userbyid" else "reading"
         setattr(g, key_name, record)
 
 
@@ -106,6 +106,23 @@ class CreateReading(Resource):
         else:
             raise Exception(f"Failed to generate interpretation from GPT: Status {response.status_code}")
 
+            
+class Readings(Resource):
+    def get(self):
+        try:
+            readings = readings_schema.dump(Reading.query)
+            return readings, 200
+        except Exception as e:
+            return str(e), 400
+
+
+
+class ReadingById(Resource):
+    def get(self, id):
+        if g.reading:
+            return reading_schema.dump(g.reading), 200
+        return {"message": f"Could not find reading with id #{id}"}, 404            
+            
 
 class UserById(Resource):
     def get(self, id):
@@ -182,6 +199,8 @@ class Logout(Resource):
         return {}, 204
 
 
+api.add_resource(Readings, "/readings")
+api.add_resource(ReadingById, "/readings/<int:id>")
 api.add_resource(
     UserById, "/users/<int:id>"
 )  # need to ask matteo about how to not use id so that others cant populate another users page with id.  making sure this works for now.
@@ -190,6 +209,7 @@ api.add_resource(CheckSession, "/check_session", endpoint="check_session")
 api.add_resource(Login, "/login", endpoint="login")
 api.add_resource(Logout, "/logout", endpoint="logout")
 api.add_resource(CreateReading, "/new-reading")
+
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)

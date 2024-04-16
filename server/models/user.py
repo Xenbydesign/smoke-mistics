@@ -16,7 +16,10 @@ class User(db.Model, SerializerMixin):
     _password_hash = db.Column(db.String)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
-    serialize_rules = ("-_password_hash",)
+    serialize_rules = (
+        "-_password_hash",
+        "-readings.user",
+    )
 
     readings = db.relationship(
         "Reading",
