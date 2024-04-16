@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
-
-
+\
 # Standard library imports
-from sqlalchemy.sql.expression import func
-
-# Remote library imports
 import os
-from flask import request, g, render_template, make_response, session
-from flask_restful import Resource
-
 import random
 
+# Remote library imports
+
+from flask import request, g, render_template, make_response, session
+from flask_restful import Resource
+from sqlalchemy.sql.expression import func
 from werkzeug.exceptions import NotFound
 from functools import wraps
 
@@ -35,7 +33,7 @@ def index():
 
 @app.errorhandler(NotFound)
 def not_found(error):
-    return {"error": error.description}, 404
+    return {"error": str(error)}, 404
 
 
 @app.before_request
@@ -59,29 +57,29 @@ def before_request():
 
 
 class CreateReading(Resource):
-    def post(self, id):
-        if g.user:
-            # tarot_cards = TarotCard.query.order_by(db.func.random()).limit(3).all()
+    def post(self):
+        # if not g.user:
+        #     return ({"error": "Please login to create a reading."}), 401
+        import ipdb; ipdb.set_trace()
+        try:
             all_tarots = TarotCard.query.all()
-            tarots_selected = random.choice(all_tarots, 3)
+            if len(all_tarots) < 3:
+                return ({"error": "Not enough cards available."}), 400
+            
+            tarots_selected = random.sample(all_tarots, 3)
 
-            if len(tarots_selected) < 3:
-                return {"error": "Not enough cards available."}, 400
-
-            prompt = (
-                "What does it mean if someone draws these tarot cards in this order: "
-                + ", ".join([card.name for card in tarots_selected])
-                + "?"
-            )
+            prompt = "What does it mean if someone draws these tarot cards in this order: " + \
+                ", ".join(card.name for card in tarots_selected) + "?"
 
             api_key = os.getenv("OPENAI_API_KEY")
+            print("API Key:", api_key)
             if not api_key:
-                return {"error": "API key not configured."}, 422
+                return ({"error": "API key not configured."}), 422
 
-            interpretation = query_gpt(prompt, api_key)
+            interpretation = self.query_gpt(prompt, api_key)
 
             new_reading = Reading(
-                user_id=user_id,
+                user_id=g.user.id,
                 tarot1_id=tarots_selected[0].id,
                 tarot2_id=tarots_selected[1].id,
                 tarot3_id=tarots_selected[2].id,
@@ -89,38 +87,26 @@ class CreateReading(Resource):
             )
             db.session.add(new_reading)
             db.session.commit()
-        return {"error": "unable to create Reading, please login."}, 404
-        # response_data = {
-        #     "cards": [
-        #         {
-        #             "name": card.name,
-        #             "image_url": card.image_url,
-        #             "description": card.description,
-        #         }
-        #         for card in tarot_cards
-        #     ],
-        #     "interpretation": interpretation,
-        # }
+            # import ipdb; ipdb.set_trace()
+            return reading_schema.dump(new_reading), 201
+
+        except Exception as e:
+            db.session.rollback()
+            return ({"error": str(e)}), 422
 
     def query_gpt(self, prompt, api_key):
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json",
-        }
+        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
         data = {"prompt": prompt, "max_tokens": 150}
-        response = request.post(
+        response = requests.post(
             "https://api.openai.com/v1/engines/davinci/completions",
-            headers=headers,
-            json=data,
+            headers=headers, json=data
         )
         if response.status_code == 200:
             return response.json()["choices"][0]["text"]
         else:
-            return "Error in generating interpretation"
+            raise Exception(f"Failed to generate interpretation from GPT: Status {response.status_code}")
 
-        return new_reading.to_dict(), 200
-
-
+            
 class Readings(Resource):
     def get(self):
         try:
@@ -130,12 +116,13 @@ class Readings(Resource):
             return str(e), 400
 
 
+
 class ReadingById(Resource):
     def get(self, id):
         if g.reading:
             return reading_schema.dump(g.reading), 200
-        return {"message": f"Could not find reading with id #{id}"}, 404
-
+        return {"message": f"Could not find reading with id #{id}"}, 404            
+            
 
 class UserById(Resource):
     def get(self, id):
