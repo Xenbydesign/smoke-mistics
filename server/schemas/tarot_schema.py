@@ -1,7 +1,7 @@
-from . import TarotCard, fields, ma, validate
+from . import TarotCard, fields, ma
 
 
-class TarotCardSchema(ma.SQLAlchemyAutoSchema):
+class TarotSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = TarotCard
         load_instance = False

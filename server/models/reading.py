@@ -17,11 +17,14 @@ class Reading(db.Model, SerializerMixin):
     is_public = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
-    tarot_1 = db.relationship("TarotCard", foreign_keys="[Reading.tarot1_id]")
-    tarot_2 = db.relationship("TarotCard", foreign_keys="[Reading.tarot2_id]")
+    tarot_1 = db.relationship(
+        "TarotCard", foreign_keys="[Reading.tarot1_id]", lazy="joined"
+    )
+    tarot_2 = db.relationship(
+        "TarotCard", foreign_keys="[Reading.tarot2_id]", lazy="joined"
+    )
     tarot_3 = db.relationship(
-        "TarotCard",
-        foreign_keys="[Reading.tarot3_id]",
+        "TarotCard", foreign_keys="[Reading.tarot3_id]", lazy="joined"
     )
 
     @property
@@ -33,12 +36,7 @@ class Reading(db.Model, SerializerMixin):
         back_populates="readings",
     )
 
-    serialize_rules = (
-        "-user.readings",
-        "-tarot_1.readings",
-        "-tarot_2.readings",
-        "-tarot_3.readings",
-    )
+    serialize_rules = ("-user.readings",)
 
     def __repr__(self):
         return f"""

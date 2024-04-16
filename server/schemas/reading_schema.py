@@ -1,4 +1,5 @@
 from . import Reading, fields, ma, validate, validates, ValidationError, User
+from . import tarot_schema
 
 
 class ReadingSchema(ma.SQLAlchemyAutoSchema):
@@ -7,20 +8,10 @@ class ReadingSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         ordered = True
 
-    user_id = fields.Integer(required=True)
-    # tarotcards = fields.Nested(
-    #     "TarotCardSchema",
-    #     only=(
-    #         "id",
-    #         "Name",
-    #         "Image_URL",
-    #         "alt",
-    #     ),
-    #     many=True,
-    # )
     tarot1_id = fields.Int(load_only=True)
     tarot2_id = fields.Int(load_only=True)
     tarot3_id = fields.Int(load_only=True)
+    tarot_cards = fields.Nested("TarotSchema", many=True, dump_only=True)
 
     interpretation = fields.String(
         required=True, validate=validate.Length(min=30, max=500)
