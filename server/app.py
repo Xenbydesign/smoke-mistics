@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-\
 # Standard library imports
 import os
 import random
@@ -60,16 +59,21 @@ class CreateReading(Resource):
     def post(self):
         # if not g.user:
         #     return ({"error": "Please login to create a reading."}), 401
-        import ipdb; ipdb.set_trace()
+        import ipdb
+
+        ipdb.set_trace()
         try:
             all_tarots = TarotCard.query.all()
             if len(all_tarots) < 3:
                 return ({"error": "Not enough cards available."}), 400
-            
+
             tarots_selected = random.sample(all_tarots, 3)
 
-            prompt = "What does it mean if someone draws these tarot cards in this order: " + \
-                ", ".join(card.name for card in tarots_selected) + "?"
+            prompt = (
+                "What does it mean if someone draws these tarot cards in this order: "
+                + ", ".join(card.name for card in tarots_selected)
+                + "?"
+            )
 
             api_key = os.getenv("OPENAI_API_KEY")
             print("API Key:", api_key)
@@ -95,18 +99,24 @@ class CreateReading(Resource):
             return ({"error": str(e)}), 422
 
     def query_gpt(self, prompt, api_key):
-        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
         data = {"prompt": prompt, "max_tokens": 150}
         response = requests.post(
             "https://api.openai.com/v1/engines/davinci/completions",
-            headers=headers, json=data
+            headers=headers,
+            json=data,
         )
         if response.status_code == 200:
             return response.json()["choices"][0]["text"]
         else:
-            raise Exception(f"Failed to generate interpretation from GPT: Status {response.status_code}")
+            raise Exception(
+                f"Failed to generate interpretation from GPT: Status {response.status_code}"
+            )
 
-            
+
 class Readings(Resource):
     def get(self):
         try:
@@ -116,13 +126,12 @@ class Readings(Resource):
             return str(e), 400
 
 
-
 class ReadingById(Resource):
     def get(self, id):
         if g.reading:
             return reading_schema.dump(g.reading), 200
-        return {"message": f"Could not find reading with id #{id}"}, 404            
-            
+        return {"message": f"Could not find reading with id #{id}"}, 404
+
 
 class UserById(Resource):
     def get(self, id):
@@ -150,19 +159,33 @@ class UserById(Resource):
         return {"error": "Could not find Profile"}, 404
 
 
+# class Signup(Resource):
+#     def post(self):
+#         try:
+#             data = request.get_json()
+#             user = User()
+#             for attr, value in data.items():
+#                 if hasattr(user, attr):
+#                     setattr(user, attr, value)
+#             user.password = data.get("_password_hash")
+#             db.session.add(user)
+#             db.session.commit()
+#             session["user_id"] = user.id
+#             return user.to_dict(), 201
+#         except Exception as e:
+#             db.session.rollback()
+#             return {"error": str(e)}, 422
+
+
 class Signup(Resource):
     def post(self):
         try:
-            data = request.get_json()
-            user = User()
-            for attr, value in data.items():
-                if hasattr(user, attr):
-                    setattr(user, attr, value)
-            user.password = data.get("_password_hash")
+            data = user_schema.load(request.get_json())
+            user = User(**data)
             db.session.add(user)
             db.session.commit()
             session["user_id"] = user.id
-            return user.to_dict(), 201
+            return user_schema.dump(user), 201
         except Exception as e:
             db.session.rollback()
             return {"error": str(e)}, 422
@@ -173,10 +196,10 @@ class CheckSession(Resource):
         try:
             if user_id := session.get("user_id"):
                 user = db.session.get(User, user_id)
-                return user.to_dict(), 200
+                return user_schema.dump(user), 200
             return {}, 401
         except Exception as e:
-            return {"message": str(e)}, 422
+            return {"error": str(e)}, 422
 
 
 class Login(Resource):
@@ -186,7 +209,7 @@ class Login(Resource):
             user = User.query.filter_by(username=data.get("username")).first()
             if user and user.authenticate(data.get("_password_hash")):
                 session["user_id"] = user.id
-                return user.to_dict(), 200
+                return user_schema.dump(user), 200
             else:
                 return {"error": "Invalid Credentials"}, 401
         except Exception as e:
