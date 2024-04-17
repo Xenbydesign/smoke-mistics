@@ -44,7 +44,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 
     #  for 'profile_image' ensuring the image is validated
     profile_image = fields.String(
-        required=True,
+        required=False,
         validate=validate.Regexp(
             r".*\.(jpeg|png|jpg)",
             error="File URI must be in JPEG, JPG, or PNG format",  # Regular expression to validate the photo.
