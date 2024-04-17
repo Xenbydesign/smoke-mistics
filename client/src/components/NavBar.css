@@ -1,0 +1,19 @@
+.navbar>a {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 250px;
+  padding: 5px;
+  margin: 0 6px 6px;
+  background: lightblue;
+  text-decoration: none;
+  text-align: center;
+  font-size: min(20vw, 30px);
+  color: black;
+  border-radius: 5px;
+  margin-top: 50px;
+}
+
+a.active {
+  background: white;
+  color: black;
+}
