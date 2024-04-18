@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 
 function ReadingCard({ reading }) {
-    const { user_id, tarot_cards, interpretation, comment, created_at, id } = reading
+    // const { user_id, tarot_cards, interpretation, comment, created_at, id } = reading
     return (<h1>Reading card! </h1>
         // <Card id={id}>
         //     <Link to={`readings/${id}`}>

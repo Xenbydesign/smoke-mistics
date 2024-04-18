@@ -6,8 +6,7 @@ function HomePage() {
   return (
     < div >
       <div className="main">
-        <h2>🔮 Unveil the Mysteries of Tarot 🔮</h2>
-        <h3>✨Draw your daily insights from the Arcana, and embark on a mystical journey! 🌙</h3>
+
         <Link to="/create-reading">
           <button className="create-reading-btn">Create New Reading 🌟</button>
         </Link>
