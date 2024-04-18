@@ -19,8 +19,8 @@ function App() {
             .catch(err => console.log(err))
     }, []);
 
+    // All things user 
     const updateCurrentUser = (user) => setCurrentUser(user)
-
 
 
     return (

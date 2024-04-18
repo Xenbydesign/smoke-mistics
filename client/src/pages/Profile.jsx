@@ -11,27 +11,18 @@ const Profile = () => {
     //     if (user) {
     //         if (user.id !== Number(id)) {
     //             navigate("/")
-    //             handleSnackType("error")
-    //             setAlertMessage("That doesn't belong to you!")
     //         }
-
-    //         fetch(`/user/${id}`)
-    //             .then(resp => {
-    //                 if (resp.ok) {
-    //                     resp.json().then(setUserInfo)
-    //                 } else {
-    //                     resp.json().then(err => {
-    //                         handleSnackType("error")
-    //                         setAlertMessage(err.message)
-    //                     })
-    //                 }
-    //             })
-    //             .catch(err => {
-    //                 handleSnackType("error")
-    //                 setAlertMessage(err.message)
-    //             })
-    // }
-    // }, [user])
+    //         return resp.json().then(errorObj => toast.error(errorObj.message))
+    //     }
+    //     fetch(`/user/${id}`)
+    //         .then(resp => {
+    //             if (resp.ok) {
+    //                 return resp.json().then(setUserInfo)
+    //             }
+    //             return resp.json().then(errorObj => toast.error(errorObj.message))
+    //         })
+    //         .catch(err => console.log(err))
+    // }, [user]);
 
     // const deleteProfile = () => {
     //     if (!user) {
@@ -61,6 +52,7 @@ const Profile = () => {
 
     return (
         <div>
+            <h1>Profile page! </h1>
             {/* {userInfo && (
                 <div className="main">
                     <h2>{userInfo.username}'s Profile</h2>
