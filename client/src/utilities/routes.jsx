@@ -1,10 +1,11 @@
 import { createBrowserRouter } from 'react-router-dom';
-import App from './App';
+import App from '../App';
 import Home from '../pages/Home';
 import Reading from '../pages/Reading';
-import PostReading from '../pages/PostReading';
 import Profile from '../pages/Profile';
-import DashBoard from '../pages/DashBoard';
+import Authentication from '../pages/Authentication';
+import ErrorPage from '../pages/ErrorPage';
+
 
 const router = createBrowserRouter([
     {
@@ -18,21 +19,17 @@ const router = createBrowserRouter([
                 index: true
             },
             {
-                path: '/profile', 
+                path: 'profile',
                 element: <Profile />
             },
             {
-                path: '/reading',
+                path: 'readings/new',
                 element: <Reading />
             },
             {
-                path: '/post-reading',
-                element: <PostReading />
+                path: 'authentication',
+                element: <Authentication />
             },
-            {
-                path: '/dashboard',
-                element: <DashBoard />
-            }
         ]
     }
 ]);
