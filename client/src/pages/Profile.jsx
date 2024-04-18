@@ -7,31 +7,31 @@ const Profile = () => {
     const [userInfo, setUserInfo] = useState({})
     const navigate = useNavigate();
 
-    useEffect(() => {
-        if (user) {
-            if (user.id !== Number(id)) {
-                navigate("/")
-                handleSnackType("error")
-                setAlertMessage("That doesn't belong to you!")
-            }
+    // useEffect(() => {
+    //     if (user) {
+    //         if (user.id !== Number(id)) {
+    //             navigate("/")
+    //             handleSnackType("error")
+    //             setAlertMessage("That doesn't belong to you!")
+    //         }
 
-            fetch(`/user/${id}`)
-                .then(resp => {
-                    if (resp.ok) {
-                        resp.json().then(setUserInfo)
-                    } else {
-                        resp.json().then(err => {
-                            handleSnackType("error")
-                            setAlertMessage(err.message)
-                        })
-                    }
-                })
-                .catch(err => {
-                    handleSnackType("error")
-                    setAlertMessage(err.message)
-                })
-        }
-    }, [user])
+    //         fetch(`/user/${id}`)
+    //             .then(resp => {
+    //                 if (resp.ok) {
+    //                     resp.json().then(setUserInfo)
+    //                 } else {
+    //                     resp.json().then(err => {
+    //                         handleSnackType("error")
+    //                         setAlertMessage(err.message)
+    //                     })
+    //                 }
+    //             })
+    //             .catch(err => {
+    //                 handleSnackType("error")
+    //                 setAlertMessage(err.message)
+    //             })
+    //     }
+    // }, [user])
 
     const deleteProfile = () => {
         if (!user) {
@@ -56,7 +56,7 @@ const Profile = () => {
             })
     };
 
-    const UserProfile = ({ userInfo, deleteProfile }) => {
+    // const UserProfile = ({ userInfo, deleteProfile }) => {
         const allReadings = userInfo?.reading?.map(reading =>
             <Card key={reading.id} {...reading} />
         );

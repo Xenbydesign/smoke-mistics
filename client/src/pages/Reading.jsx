@@ -1,49 +1,60 @@
 // import React, { useState } from 'react';
-// import toast from 'react-hot-toast';
+// import useAuthForms from '../hooks/useAuthForms';
+// import { toast } from 'react-hot-toast';
 
-// function ReadingPage() {
-//     const [reading, setReading] = useState(null);
+function Reading() {
+//     const [isLogin, setIsLogin] = useState(true); 
+//     const { formik, serverError } = useAuthForms(isLogin);
 
-//     const handleGetReading = async () => {
-//         try {
-//             const response = await fetch('/api/readings', {
-//                 method: 'POST',
-//                 headers: {
-//                     'Content-Type': 'application/json'
-//                 },
-//                 body: JSON.stringify({ user_id: 1 })
-//             });
-
-//             if (!response.ok) {
-//                 throw new Error('Network response was not ok');
-//             }
-
-//             const data = await response.json();
-//             setReading(data);
-//             toast.success('New reading fetched successfully!');
-//         } catch (err) {
-//             toast.error('Failed to fetch reading');
+//     // Handle form submission success and error
+//     const handleSubmit = async (event) => {
+//         event.preventDefault();
+//         const result = await formik.handleSubmit(event);
+//         if (result.success) {
+//             toast.success('Successfully logged in!');
+//         } else {
+//             toast.error(result.message || 'An error occurred during login.');
 //         }
 //     };
 
-//     return (
-//         <div>
-//             <h1>Your Tarot Reading</h1>
-//             <button onClick={handleGetReading}>Get a New Reading</button>
-//             {reading && (
-//                 <div>
-//                     <h2>Interpretation</h2>
-//                     <p>{reading.interpretation}</p>
-//                     <h3>Cards Drawn</h3>
-//                     <ul>
-//                         {reading.cards.map(card => (
-//                             <li key={card.id}>{card.name}</li>
-//                         ))}
-//                     </ul>
-//                 </div>
-//             )}
-//         </div>
-//     );
-// }
+    return (
+        <div>
+{/* //             <h1>{isLogin ? "Login" : "Sign Up"}</h1>
+//             <button onClick={() => setIsLogin(!isLogin)}>
+//                 {isLogin ? "Need to create an account?" : "Already have an account?"}
+//             </button>
+//             <form onSubmit={handleSubmit}>
+//                     type="text"
+//                     name="username"
+//                     onChange={formik.handleChange}
+//                     value={formik.values.username}
+//                     placeholder="Username"
+//                 />
+//                 <input
+//                     type="password"
+//                     name="password"
+//                     onChange={formik.handleChange}
+//                     value={formik.values.password}
+//                     placeholder="Password"
+//                 />
+//                 {!isLogin && (
+    //                     <>
+//                         <input
+//                             type="email"
+//                             name="email"
+//                             onChange={formik.handleChange}
+//                             value={formik.values.email}
+//                             placeholder="Email"
+//                         />
+//                         
+{/* //                 )} */}
+{/* //                 <button type="submit">{isLogin ? "Log In" : "Sign Up"}</button>
+//             </form> */}
+{/* //             {serverError && <p>Error: {serverError}</p>}
+                <input */}
+{/* //                     </> */}
+    </div>
+    );
+}
 
-// export default ReadingPage;
+export default Reading;

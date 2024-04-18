@@ -1,15 +1,28 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import {useState} from 'react';
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+import Home from './pages/Home';
 import NavBar from './components/NavBar';
 
+
 function App() {
+    const [currentUser, setCurrentUser] = useState(null)
+
+    const updateCurrentUser = (user) => {
+        setCurrentUser(user)
+    }
+
+
+
     return (
-        <>
-            <NavBar />
-            <main>
-                <Outlet />  {/* This is where Home, Reading, etc. will be rendered */}
-            </main>
-        </>
+        <div>
+            <h1>
+            🔮Smoke & Mistics 🔮
+            </h1>
+        <NavBar/>
+        <Outlet context={{currentUser, updateCurrentUser}}/>
+
+        </div>
     );
 }
 

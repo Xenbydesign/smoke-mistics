@@ -1,5 +1,6 @@
 {
   "name": "smoke-mistics",
+  "proxy": "http://localhost:5555/",  
   "version": "1.0.0",
   "description": "## Learning Goals",
   "main": "index.js",

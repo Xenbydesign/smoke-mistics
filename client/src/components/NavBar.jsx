@@ -6,6 +6,7 @@ function NavBar() {
   return (
     <>
       <Toaster />
+      
       <nav className="navbar">
         <NavLink to="/" className="active-link">Home</NavLink>
         <NavLink to="/reading" className="active-link" >Reading</NavLink>
