@@ -5,29 +5,29 @@ import NavBar from './components/NavBar';
 
 function App() {
     const [currentUser, setCurrentUser] = useState(null)
-    const [readings, setReadings] = useState([]);
+    // All things user 
 
-    // Get Readings 
     useEffect(() => {
-        fetch("/readings")
+        fetch("/check-session")
             .then(resp => {
                 if (resp.ok) {
-                    return resp.json().then(setReadings)
+                    resp.json()
+                        .then(setCurrentUser)
                 }
-                return resp.json().then(errorObj => toast.error(errorObj.message))
             })
-            .catch(err => console.log(err))
-    }, []);
+    }, [])
 
-    // All things user 
     const updateCurrentUser = (user) => setCurrentUser(user)
+    const addReadingToUser = (reading) => setCurrentUser(currentState => (
+        { ...currentState, readings: [reading, ...currentState.readings] }
+    ))
 
 
     return (
         <>
             <NavBar currentUser={currentUser} updateCurrentUser={updateCurrentUser} />
             <div><Toaster /></div>
-            <Outlet context={{ readings, updateCurrentUser, currentUser }} />
+            <Outlet context={{ updateCurrentUser, addReadingToUser, currentUser }} />
         </>
 
     );

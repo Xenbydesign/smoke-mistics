@@ -1,8 +1,6 @@
 from datetime import date  # date for the birthday validation
 from . import User, fields, ma, validate
 
-# Import from schema init  and from marshmallow  and other dependencies.
-
 
 class UserSchema(ma.SQLAlchemyAutoSchema):
     # Meta class contains metadata for the schema, influencing how it behaves with respect to model loading and serialization.
@@ -17,6 +15,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
             "created_at",
         )  # Fields specified here will only be included when serializing (dumping) data, not when loading.
 
+    readings = fields.Nested("ReadingSchema", exclude=("user",), many=True)
     # for 'username' validations:
     username = fields.String(
         validate=[
@@ -32,14 +31,15 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 
     #  for 'email' its required and uses built-in validation from marshmellow makes sure it is a valid email format.
     email = fields.Email(required=True)
+    password_hash = fields.Str(required=True, load_only=True)
 
     #  for 'birthday' with a validation makes sure the date is not in the future.
-    birthday = fields.Date(
+    birthday = fields.String(
         required=True,
-        validate=validate.Range(
-            max=date.today(),
-            error="Birthday cannot be in the future.",  # Uses the current date as the max allowable value.
-        ),
+        # validate=validate.Range(
+        #     max=date.today(),
+        # #     error="Birthday cannot be in the future.",  # Uses the current date as the max allowable value.
+        # ),
     )
 
     #  for 'profile_image' ensuring the image is validated
@@ -53,6 +53,18 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
 
     # Optional field which can be None and has a maximum length of 50 characters.
     about_me = fields.String(allow_none=True, validate=validate.Length(max=50))
+
+    def load(self, data, instance=None, *, partial=False, **kwargs):
+        # Load the instance using Marshmallow's default behavior
+        loaded_instance = super().load(
+            data, instance=instance, partial=partial, **kwargs
+        )
+
+        # Set attributes manually, triggering property setters
+        for key, value in data.items():
+            setattr(loaded_instance, key, value)
+
+        return loaded_instance
 
 
 #! Create schema for a single user

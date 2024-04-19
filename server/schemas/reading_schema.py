@@ -8,6 +8,8 @@ class ReadingSchema(ma.SQLAlchemyAutoSchema):
         load_instance = True
         ordered = True
 
+    user_id = fields.Int()
+    user = fields.Nested("UserSchema", only=("username",))
     tarot1_id = fields.Int(load_only=True)
     tarot2_id = fields.Int(load_only=True)
     tarot3_id = fields.Int(load_only=True)

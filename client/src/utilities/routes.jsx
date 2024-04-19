@@ -5,6 +5,7 @@ import Reading from '../pages/Reading';
 import Profile from '../pages/Profile';
 import Authentication from '../pages/Authentication';
 import ErrorPage from '../pages/ErrorPage';
+import ReadingCard from '../components/ReadingCard';
 
 
 const router = createBrowserRouter([
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
             {
                 path: 'readings/new',
                 element: <Reading />
+            },
+            {
+                path: 'reading/:readingId',
+                element: <ReadingCard />
             },
             {
                 path: 'authentication',
